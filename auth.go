@@ -8,6 +8,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+// metadata holds additional information about Vault secrets (kv v2)
+type metadata struct {
+	CreatedTime  time.Time `json:"created_time"`
+	DeletionTime string    `json:"deletion_time"`
+	Destroyed    bool      `json:"destroyed"`
+	Version      int       `json:"version"`
+}
+
 // vaultAuth holds the Vault Auth response from server
 type vaultAuth struct {
 	ClientToken string   `json:"client_token"`
@@ -103,12 +111,7 @@ func (c *Client) setTokenFromAppRole() error {
 // vaultSecretKV2 holds the Vault secret (kv v2)
 type vaultSecretKV2 struct {
 	Data     map[string]interface{} `json:"data"`
-	Metadata struct {
-		CreatedTime  time.Time `json:"created_time"`
-		DeletionTime string    `json:"deletion_time"`
-		Destroyed    bool      `json:"destroyed"`
-		Version      int       `json:"version"`
-	} `json:"metadata"`
+	Metadata metadata               `json:"metadata"`
 }
 
 func (c *Client) setTokenInfo() error {
