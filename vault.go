@@ -15,6 +15,7 @@ import (
 type Secret struct {
 	KV         map[string]string
 	JSONSecret json.RawMessage
+	Metadata   metadata
 }
 
 type rawSecretData struct {
@@ -52,6 +53,7 @@ func (c *Client) GetSecret(path string) (secret Secret, err error) {
 
 	if kvVersion == "2" {
 		err = json.Unmarshal([]byte(rsp.Data), &v2Secret)
+		secret.Metadata = v2Secret.Metadata
 		if err != nil {
 			return secret, errors.Wrap(errors.WithStack(err), errInfo())
 		}
