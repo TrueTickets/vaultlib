@@ -1,7 +1,7 @@
 #!/bin/bash
 export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=my-dev-root-vault-token
-export VAULT_VERSION=${1:-1.0.1}
+export VAULT_VERSION=${1:-1.4.1}
 
 case "$(uname -s)" in
   Darwin*)
