@@ -15,4 +15,4 @@ services:
 before_install:
   - go get github.com/mattn/goveralls
 script:
-  - goveralls -v -service=travis-ci
+  - goveralls -debug -v -service=travis-ci
