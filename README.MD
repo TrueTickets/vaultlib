@@ -83,5 +83,3 @@ func main() {
     }
 }
 ```
-
-## Development and Testing
