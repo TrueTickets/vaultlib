@@ -4,7 +4,10 @@ branches:
   - master
 language: go
 go:
-    - 1.11.4
+    - 1.11.13
+    - 1.12.17
+    - 1.13.10
+    - 1.14.2
 install: true
 sudo: required
 services:
