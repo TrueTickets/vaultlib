@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/TrueTickets/vaultlib.svg?branch=master)](https://travis-ci.org/TrueTickets/vaultlib)
 [![Coverage Status](https://coveralls.io/repos/github/TrueTickets/vaultlib/badge.svg?branch=master)](https://coveralls.io/github/TrueTickets/vaultlib?branch=master) [![GoDoc](https://godoc.org/github.com/TrueTickets/vaultlib?status.svg)](https://godoc.org/github.com/TrueTickets/vaultlib) [![Go Report Card](https://goreportcard.com/badge/github.com/TrueTickets/vaultlib)](https://goreportcard.com/report/github.com/TrueTickets/vaultlib)
 
+This work forks Michael Champagne's vaultlib at https://github.com/mch1307/vaultlib
+
 Lightweight, simple Go library for Vault secret reading (http API).
 
 Connect to Vault through app role or token.
@@ -35,6 +37,10 @@ VAULT_SKIP_VERIFY     # Do not check SSL
 If not set, `vaultlib` will fallback to safe default values.
 
 > `vautlib` will automatically use the http_proxy environment variable to connect to Vault
+
+## Tests
+
+To test this library, run `go1.11.13 test -vaultVersion 1.4.1` in the root of the repo.
 
 ## Getting Started
 
