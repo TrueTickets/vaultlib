@@ -15,7 +15,7 @@ import (
 type Secret struct {
 	KV         map[string]string
 	JSONSecret json.RawMessage
-	Metadata   metadata
+	Metadata   Metadata
 }
 
 type rawSecretData struct {
