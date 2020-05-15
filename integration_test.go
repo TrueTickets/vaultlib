@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 		&keepVault,
 		"keepVault",
 		false,
-		"keep the test vault instance running after",
+		"keep the test vault instance running after tests",
 	)
 	flag.Parse()
 	fmt.Println("Testing with Vault version", vaultVersion)
