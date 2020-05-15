@@ -2,7 +2,6 @@ package vaultlib
 
 import (
 	"encoding/json"
-	// "fmt" // ***
 	"os"
 	"reflect"
 	"testing"
@@ -105,8 +104,6 @@ func TestVaultClient_GetSecret(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := tt.cli
 			res, err := c.GetSecret(tt.path)
-			// fmt.Println("Vault Test: ", tt.name)            // ***
-			// fmt.Println("Metadata: ", res.Metadata.Version) // ***
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Client.GetSecret() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -114,7 +111,7 @@ func TestVaultClient_GetSecret(t *testing.T) {
 			if !reflect.DeepEqual(res.KV, tt.wantKv) || !reflect.DeepEqual(res.JSONSecret, tt.wantJSON) {
 				t.Errorf("Client.GetSecret() = %v, want %v", res.KV, tt.wantKv)
 			}
-			if (tt.wantMetadataVersion == 0 && res.Metadata.Version != 0) || (tt.wantMetadataVersion != 0 && res.Metadata.Version == 0) {
+			if tt.wantMetadataVersion != res.Metadata.Version {
 				t.Errorf("Metadata Version = %v, want %v", res.Metadata.Version, tt.wantMetadataVersion)
 			}
 		})
