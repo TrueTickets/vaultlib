@@ -34,7 +34,8 @@ func prepareVault() {
 	if err != nil {
 		log.Fatalf("Error in initVaultDev.sh %v", err)
 	}
-	cmd := exec.Command("./vault", "read", "-field=role_id", "auth/approle/role/my-role/role-id")
+    vaultBin := "./test-files/vault/vault" + vaultVersion
+	cmd := exec.Command(vaultBin, "read", "-field=role_id", "auth/approle/role/my-role/role-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -45,7 +46,7 @@ func prepareVault() {
 	}
 	vaultRoleID = string(out)
 
-	cmd = exec.Command("./vault", "write", "-field=secret_id", "-f", "auth/approle/role/my-role/secret-id")
+	cmd = exec.Command(vaultBin, "write", "-field=secret_id", "-f", "auth/approle/role/my-role/secret-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -55,7 +56,7 @@ func prepareVault() {
 	}
 	vaultSecretID = string(out)
 
-	cmd = exec.Command("./vault", "read", "-field=role_id", "auth/approle/role/no-kv/role-id")
+	cmd = exec.Command(vaultBin, "read", "-field=role_id", "auth/approle/role/no-kv/role-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -66,7 +67,7 @@ func prepareVault() {
 	}
 	noKVRoleID = string(out)
 
-	cmd = exec.Command("./vault", "write", "-field=secret_id", "-f", "auth/approle/role/no-kv/secret-id")
+	cmd = exec.Command(vaultBin, "write", "-field=secret_id", "-f", "auth/approle/role/no-kv/secret-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
