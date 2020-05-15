@@ -37,10 +37,10 @@ esac
 
 # Download Vault if we don't have this version
 if [[ ! -x $VAULT_BIN ]]; then
-    curl -O "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_${OS}.zip"
-    unzip "vault_${VAULT_VERSION}_${OS}.zip"
-    mv vault "${VAULT_BIN}"
-    rm "vault_${VAULT_VERSION}_${OS}.zip"
+  curl -O "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_${OS}.zip"
+  unzip "vault_${VAULT_VERSION}_${OS}.zip"
+  mv vault "${VAULT_BIN}"
+  rm "vault_${VAULT_VERSION}_${OS}.zip"
 fi
 
 # Export vars that we need
