@@ -75,5 +75,3 @@ sleep 5
   ${VAULT_BIN} write auth/approle/role/my-role policies=VaultDevAdmin token_num_uses=100 token_ttl=10s token_max_ttl=300m secret_id_num_uses=40
   ${VAULT_BIN} write auth/approle/role/no-kv policies=VaultNoKV token_num_uses=2 token_ttl=30m token_max_ttl=300m secret_id_num_uses=40
 } >> "${VAULT_LOG}"
-
-#unset VAULT_TOKEN
