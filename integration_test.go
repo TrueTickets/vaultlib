@@ -11,6 +11,7 @@ import (
 
 var vaultRoleID, vaultSecretID, noKVRoleID, noKVSecretID string
 
+var keepVault bool
 var vaultVersion string
 
 func TestMain(m *testing.M) {
@@ -20,12 +21,24 @@ func TestMain(m *testing.M) {
 		"1.4.1",
 		"provide vault version to be tested against",
 	)
+	flag.BoolVar(
+		&keepVault,
+		"keepVault",
+		false,
+		"keep the test vault instance running after",
+	)
 	flag.Parse()
 	fmt.Println("Testing with Vault version", vaultVersion)
 	fmt.Println("TestMain: Preparing Vault server")
 	prepareVault()
 	fmt.Println("TestMain: Vault Prepared; Running Tests")
 	ret := m.Run()
+	if !keepVault {
+	  fmt.Println("TestMain: Cleaning up")
+	  stopVault()
+	} else {
+	  fmt.Println("TestMain: Not cleaning up as requested")
+	}
 	os.Exit(ret)
 }
 
@@ -77,7 +90,6 @@ func prepareVault() {
 	}
 	noKVSecretID = string(out)
 	os.Unsetenv("VAULT_TOKEN")
-
 }
 
 func startVault(version string) error {
@@ -91,5 +103,17 @@ func startVault(version string) error {
 		return err
 	}
 	return nil
+}
 
+func stopVault() error {
+	cmd := exec.Command("bash", "./test-files/cleanupVaultDev.sh")
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+	return nil
 }
