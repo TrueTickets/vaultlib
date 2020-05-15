@@ -2,6 +2,7 @@ package vaultlib
 
 import (
 	"encoding/json"
+	// "fmt" // ***
 	"os"
 	"reflect"
 	"testing"
@@ -82,19 +83,20 @@ func TestVaultClient_GetSecret(t *testing.T) {
 	// noPrivCli, _ := NewClient(conf)
 	expectedJSON := []byte(`{"json-secret":{"first-secret":"first-value","second-secret":"second-value"}}`)
 	tests := []struct {
-		name     string
-		cli      *Client
-		path     string
-		wantKv   map[string]string
-		wantJSON json.RawMessage
-		wantErr  bool
+		name                string
+		cli                 *Client
+		path                string
+		wantKv              map[string]string
+		wantJSON            json.RawMessage
+		wantMetadataVersion int
+		wantErr             bool
 	}{
-		{"kvv1", vc, "kv_v1/path/my-secret", map[string]string{"my-v1-secret": "my-v1-secret-value"}, nil, false},
+		{"kvv1", vc, "kv_v1/path/my-secret", map[string]string{"my-v1-secret": "my-v1-secret-value"}, nil, 0, false},
 		{"kvv2", vc, "kv_v2/path/my-secret", map[string]string{"my-first-secret": "my-first-secret-value",
-			"my-second-secret": "my-second-secret-value"}, nil, false},
-		{"json-secretV2", vc, "kv_v2/path/json-secret", map[string]string{}, expectedJSON, false},
-		{"json-secretV1", vc, "kv_v1/path/json-secret", map[string]string{}, expectedJSON, false},
-		{"invalidURL", badCli, "kv_v1/path/my-secret", map[string]string{}, nil, true},
+			"my-second-secret": "my-second-secret-value"}, nil, 1, false},
+		{"json-secretV2", vc, "kv_v2/path/json-secret", map[string]string{}, expectedJSON, 1, false},
+		{"json-secretV1", vc, "kv_v1/path/json-secret", map[string]string{}, expectedJSON, 0, false},
+		{"invalidURL", badCli, "kv_v1/path/my-secret", map[string]string{}, nil, 0, true},
 		//{"missingPrivileges", noPrivCli, "kv_v1/path/my-secret", map[string]string{}, nil, true},
 	}
 	//wait so that token renewal takes place
@@ -103,12 +105,17 @@ func TestVaultClient_GetSecret(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := tt.cli
 			res, err := c.GetSecret(tt.path)
+			// fmt.Println("Vault Test: ", tt.name)            // ***
+			// fmt.Println("Metadata: ", res.Metadata.Version) // ***
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Client.GetSecret() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(res.KV, tt.wantKv) || !reflect.DeepEqual(res.JSONSecret, tt.wantJSON) {
 				t.Errorf("Client.GetSecret() = %v, want %v", res.KV, tt.wantKv)
+			}
+			if (tt.wantMetadataVersion == 0 && res.Metadata.Version != 0) || (tt.wantMetadataVersion != 0 && res.Metadata.Version == 0) {
+				t.Errorf("Metadata Version = %v, want %v", res.Metadata.Version, tt.wantMetadataVersion)
 			}
 		})
 	}
