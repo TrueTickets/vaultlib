@@ -11,6 +11,13 @@ declare -r VAULT_BIN_DIR="${SCRIPT_DIR}/vault"
 declare -r VAULT_BIN="${VAULT_BIN_DIR}/vault${VAULT_VERSION}"
 declare -r VAULT_LOG_DIR="${SCRIPT_DIR}/logs"
 declare -r VAULT_LOG="${VAULT_LOG_DIR}/vault${VAULT_VERSION}.log"
+declare -r VAULT_PID="${SCRIPT_DIR}/vault.pid"
+
+# Check for leftover processes from previous run
+if [[ -f "${VAULT_PID}" ]]; then
+  echo "There is a pid file present from a previous run. Aborting!"
+  exit 1
+fi
 
 case "$(uname -s)" in
   Darwin*)
@@ -40,6 +47,8 @@ fi
 export VAULT_ADDR VAULT_TOKEN
 
 ${VAULT_BIN} server -dev -dev-root-token-id ${VAULT_TOKEN} > "${VAULT_LOG}" &
+# Save the pid so we can stop it later
+echo $! > "${VAULT_PID}"
 # Wait for vault server to be ready
 sleep 5
 
