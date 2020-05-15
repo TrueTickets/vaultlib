@@ -34,10 +34,10 @@ func TestMain(m *testing.M) {
 	fmt.Println("TestMain: Vault Prepared; Running Tests")
 	ret := m.Run()
 	if !keepVault {
-	  fmt.Println("TestMain: Cleaning up")
-	  stopVault()
+		fmt.Println("TestMain: Cleaning up")
+		stopVault()
 	} else {
-	  fmt.Println("TestMain: Not cleaning up as requested")
+		fmt.Println("TestMain: Not cleaning up as requested")
 	}
 	os.Exit(ret)
 }
@@ -47,7 +47,7 @@ func prepareVault() {
 	if err != nil {
 		log.Fatalf("Error in initVaultDev.sh %v", err)
 	}
-    vaultBin := "./test-files/vault/vault" + vaultVersion
+	vaultBin := "./test-files/vault/vault" + vaultVersion
 	cmd := exec.Command(vaultBin, "read", "-field=role_id", "auth/approle/role/my-role/role-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
