@@ -11,6 +11,7 @@ import (
 
 var vaultRoleID, vaultSecretID, noKVRoleID, noKVSecretID string
 
+var keepVault bool
 var vaultVersion string
 
 func TestMain(m *testing.M) {
@@ -20,12 +21,24 @@ func TestMain(m *testing.M) {
 		"1.4.1",
 		"provide vault version to be tested against",
 	)
+	flag.BoolVar(
+		&keepVault,
+		"keepVault",
+		false,
+		"keep the test vault instance running after tests",
+	)
 	flag.Parse()
 	fmt.Println("Testing with Vault version", vaultVersion)
 	fmt.Println("TestMain: Preparing Vault server")
 	prepareVault()
 	fmt.Println("TestMain: Vault Prepared; Running Tests")
 	ret := m.Run()
+	if !keepVault {
+		fmt.Println("TestMain: Cleaning up")
+		stopVault()
+	} else {
+		fmt.Println("TestMain: Not cleaning up as requested")
+	}
 	os.Exit(ret)
 }
 
@@ -34,7 +47,8 @@ func prepareVault() {
 	if err != nil {
 		log.Fatalf("Error in initVaultDev.sh %v", err)
 	}
-	cmd := exec.Command("./vault", "read", "-field=role_id", "auth/approle/role/my-role/role-id")
+	vaultBin := "./test-files/vault/vault" + vaultVersion
+	cmd := exec.Command(vaultBin, "read", "-field=role_id", "auth/approle/role/my-role/role-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -45,7 +59,7 @@ func prepareVault() {
 	}
 	vaultRoleID = string(out)
 
-	cmd = exec.Command("./vault", "write", "-field=secret_id", "-f", "auth/approle/role/my-role/secret-id")
+	cmd = exec.Command(vaultBin, "write", "-field=secret_id", "-f", "auth/approle/role/my-role/secret-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -55,7 +69,7 @@ func prepareVault() {
 	}
 	vaultSecretID = string(out)
 
-	cmd = exec.Command("./vault", "read", "-field=role_id", "auth/approle/role/no-kv/role-id")
+	cmd = exec.Command(vaultBin, "read", "-field=role_id", "auth/approle/role/no-kv/role-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -66,7 +80,7 @@ func prepareVault() {
 	}
 	noKVRoleID = string(out)
 
-	cmd = exec.Command("./vault", "write", "-field=secret_id", "-f", "auth/approle/role/no-kv/secret-id")
+	cmd = exec.Command(vaultBin, "write", "-field=secret_id", "-f", "auth/approle/role/no-kv/secret-id")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "VAULT_TOKEN=my-dev-root-vault-token")
 	cmd.Env = append(cmd.Env, "VAULT_ADDR=http://localhost:8200")
@@ -76,7 +90,6 @@ func prepareVault() {
 	}
 	noKVSecretID = string(out)
 	os.Unsetenv("VAULT_TOKEN")
-
 }
 
 func startVault(version string) error {
@@ -90,5 +103,17 @@ func startVault(version string) error {
 		return err
 	}
 	return nil
+}
 
+func stopVault() error {
+	cmd := exec.Command("bash", "./test-files/cleanupVaultDev.sh")
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+	return nil
 }
