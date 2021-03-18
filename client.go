@@ -58,8 +58,8 @@ type VaultTokenInfo struct {
 // NewClient returns a new client based on the provided config.
 //
 // If you are using the client and then disposing it, make sure you call
-// defer client.Shutdown once you are done with it. Failing to do so will result
-// in an infinite gorutine running in the background.
+// `defer client.Shutdown()` once you are done with it. Failing to do so will
+// result in an infinite gorutine running in the background.
 func NewClient(c *Config) (*Client, error) {
 	var caPool *x509.CertPool
 	// If no config provided, use a new one based on default values and env vars
@@ -73,8 +73,8 @@ func NewClient(c *Config) (*Client, error) {
 	cli.appRoleCredentials.RoleID = c.AppRoleCredentials.RoleID
 	cli.appRoleCredentials.SecretID = c.AppRoleCredentials.SecretID
 
-	// explicitly setting to nil to mean "channel is not used"
-	// channel will be used only if renewToken loop is started
+	// We explicitly set cli.done to nil to mean "channel is not used";
+	// the channel will be used only if renewToken loop is started.
 	cli.done = nil
 
 	u, err := url.Parse(c.Address)
@@ -120,8 +120,8 @@ func NewClient(c *Config) (*Client, error) {
 			return &cli, err
 		}
 		if cli.token.Renewable {
-			// make sure the channel is created only when it's necessary
-			// (when token is renewable and there are no errors)
+			// Make sure the channel is created only when it's necessary
+			// (when token is renewable and there are no errors).
 			cli.done = make(chan bool)
 			go cli.renewToken()
 		}
@@ -180,7 +180,7 @@ func (c *Client) withLockContext(fn func()) {
 }
 
 // Shutdown stops the infinite renewToken loop and cleans up any associated
-// resources for the client. You can call defer client.Shutdown() safely even
+// resources for the client. You can call `defer client.Shutdown()` safely even
 // if no renewToken loop is running.
 func (c *Client) Shutdown() {
 	if c.done != nil {
