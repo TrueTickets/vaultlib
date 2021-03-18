@@ -126,6 +126,7 @@ func TestClient_IsAuthenticated(t *testing.T) {
 	conf := NewConfig()
 	conf.Token = "my-dev-root-vault-token"
 	authCli, _ := NewClient(conf)
+	defer authCli.Shutdown()
 	conf.Token = "bad-token"
 	badCli, _ := NewClient(conf)
 	defer badCli.Shutdown()
