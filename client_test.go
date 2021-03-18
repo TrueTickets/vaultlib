@@ -14,6 +14,8 @@ func TestNewClient(t *testing.T) {
 	defaultCfg.AppRoleCredentials.RoleID = vaultRoleID
 	defaultCfg.AppRoleCredentials.SecretID = vaultSecretID
 	vc, _ := NewClient(defaultCfg)
+	defer vc.Shutdown()
+
 	// create new config with a vault token
 	os.Setenv("VAULT_TOKEN", "my-renewable-token")
 	cfg := NewConfig()
@@ -71,6 +73,7 @@ func Example() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer vaultCli.Shutdown()
 
 	// Get the Vault KV secret from kv_v1/path/my-secret
 	kvV1, err := vaultCli.GetSecret("kv_v1/path/my-secret")
@@ -92,7 +95,7 @@ func Example() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(fmt.Sprintf("%v", jsonSecret.JSONSecret))
+	fmt.Printf("%v\n", jsonSecret.JSONSecret)
 }
 
 func ExampleNewClient() {
@@ -101,6 +104,8 @@ func ExampleNewClient() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	defer myVaultClient.Shutdown()
+
 	fmt.Println(myVaultClient.address)
 }
 
@@ -110,6 +115,8 @@ func ExampleClient_IsAuthenticated() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	defer myVaultClient.Shutdown()
+
 	if myVaultClient.IsAuthenticated() {
 		fmt.Println("myVaultClient's connection is ok")
 	}
@@ -121,6 +128,8 @@ func TestClient_IsAuthenticated(t *testing.T) {
 	authCli, _ := NewClient(conf)
 	conf.Token = "bad-token"
 	badCli, _ := NewClient(conf)
+	defer badCli.Shutdown()
+
 	tests := []struct {
 		name string
 		cli  *Client
@@ -143,6 +152,8 @@ func TestClient_GetTokenInfo(t *testing.T) {
 	defaultCfg := NewConfig()
 	defaultCfg.Token = "my-dev-root-vault-token"
 	client, _ := NewClient(defaultCfg)
+	defer client.Shutdown()
+
 	tokenOK := new(VaultTokenInfo)
 	tokenOK.ID = defaultCfg.Token
 	tests := []struct {
@@ -166,6 +177,8 @@ func TestClient_GetStatus(t *testing.T) {
 	defaultCfg := NewConfig()
 	defaultCfg.Token = "my-dev-root-vault-token"
 	client, _ := NewClient(defaultCfg)
+	defer client.Shutdown()
+
 	tests := []struct {
 		name string
 		cli  *Client
