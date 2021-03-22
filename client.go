@@ -59,7 +59,7 @@ type VaultTokenInfo struct {
 //
 // If you are using the client and then disposing it, make sure you call
 // defer client.Shutdown() once you are done with it. Failing to do so will
-// result in an infinite gorutine running in the background.
+// result in an infinite goroutine running in the background.
 func NewClient(c *Config) (*Client, error) {
 	var caPool *x509.CertPool
 	// If no config provided, use a new one based on default values and env vars
