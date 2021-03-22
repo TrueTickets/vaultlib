@@ -13,6 +13,8 @@ import (
 
 func Test_newRequest(t *testing.T) {
 	cli, _ := NewClient(nil)
+	defer cli.Shutdown()
+
 	testURL, _ := url.Parse("http://localhost:8200")
 	emptyReq := new(request)
 	type args struct {
@@ -83,6 +85,8 @@ func Test_request_execute(t *testing.T) {
 func Test_request_setJSONBody(t *testing.T) {
 	var cred AppRoleCredentials
 	cli, _ := NewClient(nil)
+	defer cli.Shutdown()
+
 	cred.RoleID = "aa"
 	cred.SecretID = "bb"
 	htCli := new(http.Client)
@@ -131,6 +135,8 @@ func TestClient_RawRequest(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to get vault cli %v", err)
 	}
+	defer vc.Shutdown()
+
 	vc.token.ID = "my-dev-root-vault-token"
 	ch := make(chan int)
 	type args struct {

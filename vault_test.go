@@ -48,6 +48,7 @@ func TestVaultClient_getKVInfo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, _ := NewClient(tt.fields.Config)
+			defer c.Shutdown()
 			gotVersion, gotName, err := c.getKVInfo(tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Client.getKVInfo() error = %v, wantErr %v", err, tt.wantErr)
@@ -72,9 +73,11 @@ func TestVaultClient_GetSecret(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to get vault cli %v", err)
 	}
+	defer vc.Shutdown()
 
 	conf.Address = "https://localhost:8200"
 	badCli, _ := NewClient(conf)
+	defer badCli.Shutdown()
 
 	conf.Address = "http://localhost:8200"
 	conf.AppRoleCredentials.RoleID = noKVRoleID

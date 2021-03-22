@@ -54,6 +54,10 @@ func TestNewClient(t *testing.T) {
 				t.Errorf("NewClient() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			if got != nil {
+				defer got.Shutdown()
+			}
+
 			if !tt.wantErr && !(got.status == tt.want.status) {
 				t.Errorf("NewClient() = %v, want %v", got, tt.want)
 			}
@@ -127,6 +131,7 @@ func TestClient_IsAuthenticated(t *testing.T) {
 	conf.Token = "my-dev-root-vault-token"
 	authCli, _ := NewClient(conf)
 	defer authCli.Shutdown()
+
 	conf.Token = "bad-token"
 	badCli, _ := NewClient(conf)
 	defer badCli.Shutdown()
