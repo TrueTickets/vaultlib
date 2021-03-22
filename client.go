@@ -58,7 +58,7 @@ type VaultTokenInfo struct {
 // NewClient returns a new client based on the provided config.
 //
 // If you are using the client and then disposing it, make sure you call
-// `defer client.Shutdown()` once you are done with it. Failing to do so will
+// defer client.Shutdown() once you are done with it. Failing to do so will
 // result in an infinite gorutine running in the background.
 func NewClient(c *Config) (*Client, error) {
 	var caPool *x509.CertPool
