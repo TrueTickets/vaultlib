@@ -180,7 +180,7 @@ func (c *Client) withLockContext(fn func()) {
 }
 
 // Shutdown stops the infinite renewToken loop and cleans up any associated
-// resources for the client. You can call `defer client.Shutdown()` safely even
+// resources for the client. You can call defer client.Shutdown() safely even
 // if no renewToken loop is running.
 func (c *Client) Shutdown() {
 	if c.done != nil {
