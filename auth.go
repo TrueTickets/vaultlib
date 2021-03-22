@@ -34,35 +34,42 @@ func (c *Client) renewToken() {
 	var vaultData vaultAuth
 	jsonToken := make(map[string]string)
 
+	duration := c.token.TTL - 2
+	ticker := time.NewTicker(time.Second * time.Duration(duration))
+	defer ticker.Stop()
+
 	for {
-		duration := c.token.TTL - 2
-		time.Sleep(time.Second * time.Duration(duration))
+		select {
+		case <-c.done:
+			return
 
-		url := c.address.String() + "/v1/auth/token/renew"
+		case <-ticker.C:
+			url := c.address.String() + "/v1/auth/token/renew"
 
-		jsonToken["token"] = c.getTokenID()
+			jsonToken["token"] = c.getTokenID()
 
-		req, _ := c.newRequest("POST", url)
+			req, _ := c.newRequest("POST", url)
 
-		_ = req.setJSONBody(jsonToken)
+			_ = req.setJSONBody(jsonToken)
 
-		resp, err := req.execute()
-		if err != nil {
-			c.setStatus("Error renewing token " + err.Error())
-			continue
+			resp, err := req.execute()
+			if err != nil {
+				c.setStatus("Error renewing token " + err.Error())
+				continue
+			}
+
+			jsonErr := json.Unmarshal([]byte(resp.Auth), &vaultData)
+			if jsonErr != nil {
+				c.setStatus("Error renewing token " + err.Error())
+				continue
+			}
+
+			if err := c.setTokenInfo(); err != nil {
+				c.setStatus("Error renewing token " + err.Error())
+				continue
+			}
+			c.setStatus("token renewed")
 		}
-
-		jsonErr := json.Unmarshal([]byte(resp.Auth), &vaultData)
-		if jsonErr != nil {
-			c.setStatus("Error renewing token " + err.Error())
-			continue
-		}
-
-		if err := c.setTokenInfo(); err != nil {
-			c.setStatus("Error renewing token " + err.Error())
-			continue
-		}
-		c.setStatus("token renewed")
 	}
 }
 

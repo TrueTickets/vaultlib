@@ -31,6 +31,7 @@ type Client struct {
 	token              *VaultTokenInfo
 	status             string
 	isAuthenticated    bool
+	done               chan bool
 }
 
 // VaultTokenInfo holds the Vault token information
@@ -54,7 +55,11 @@ type VaultTokenInfo struct {
 	Type           string      `json:"type"`
 }
 
-// NewClient returns a new client based on the provided config
+// NewClient returns a new client based on the provided config.
+//
+// If you are using the client and then disposing it, make sure you call
+// defer client.Shutdown() once you are done with it. Failing to do so will
+// result in an infinite goroutine running in the background.
 func NewClient(c *Config) (*Client, error) {
 	var caPool *x509.CertPool
 	// If no config provided, use a new one based on default values and env vars
@@ -67,6 +72,7 @@ func NewClient(c *Config) (*Client, error) {
 	cli.appRoleCredentials = new(AppRoleCredentials)
 	cli.appRoleCredentials.RoleID = c.AppRoleCredentials.RoleID
 	cli.appRoleCredentials.SecretID = c.AppRoleCredentials.SecretID
+	cli.done = make(chan bool, 1)
 
 	u, err := url.Parse(c.Address)
 	if err != nil {
@@ -165,4 +171,14 @@ func (c *Client) withLockContext(fn func()) {
 	c.Lock()
 	defer c.Unlock()
 	fn()
+}
+
+// Shutdown stops the infinite renewToken loop and cleans up any associated
+// resources for the client. You can call defer client.Shutdown() safely even
+// if no renewToken loop is running.
+func (c *Client) Shutdown() {
+	if c.done != nil {
+		c.done <- true
+		close(c.done)
+	}
 }
