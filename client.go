@@ -72,10 +72,7 @@ func NewClient(c *Config) (*Client, error) {
 	cli.appRoleCredentials = new(AppRoleCredentials)
 	cli.appRoleCredentials.RoleID = c.AppRoleCredentials.RoleID
 	cli.appRoleCredentials.SecretID = c.AppRoleCredentials.SecretID
-
-	// We explicitly set cli.done to nil to mean "channel is not used";
-	// the channel will be used only if renewToken loop is started.
-	cli.done = nil
+	cli.done = make(chan bool, 1)
 
 	u, err := url.Parse(c.Address)
 	if err != nil {
@@ -120,9 +117,6 @@ func NewClient(c *Config) (*Client, error) {
 			return &cli, err
 		}
 		if cli.token.Renewable {
-			// Make sure the channel is created only when it's necessary
-			// (when token is renewable and there are no errors).
-			cli.done = make(chan bool)
 			go cli.renewToken()
 		}
 
